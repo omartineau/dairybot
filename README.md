@@ -22,7 +22,7 @@ Create a bot named `dairybot` and copy the token
 
 ##Launch
 ###Test
-token=xoxp-71851141441-71792119187-71840505524-9ae9605dfe node dairybot.js
+token=xoxp-123456-789012-??????-?????? node dairybot.js
 ###Install as a daemon
 Ìnstall [forever](https://www.npmjs.com/package/forever) to make DairyBot persistent.
 ```
