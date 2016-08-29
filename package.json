@@ -1,0 +1,28 @@
+{
+  "name": "dairybot",
+  "description": "Happiness slack bot for your team : reward, etc.",
+  "author": "Olivier Martineau <olivier@cigogne.net>",
+  "main": "dairybot.js",
+  "kaywords": [
+    "bot",
+    "slack",
+    "chatbots"
+  ],
+  "dependencies": {
+    "botkit": "*"
+  },
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "node dairybot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/omartineau/dairybot"
+  },
+  "bugs": {
+    "url": "https://github.com/omartineau/dairybot/issues"
+  },
+  "homepage": "http://dairybot.in"
+
+}

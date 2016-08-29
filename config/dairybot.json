@@ -1,0 +1,40 @@
+{
+    "botName":"dairy",
+    "botTZ":"Europe/Paris",
+    "cronHourUTC":"8",
+    "cronMinuteUTC":"00",
+    "giftHeardEmoji":"robot_face",
+    "adminChanel":"admin-dairy",
+    "adminUser":[ "olivier" ],
+    "excludedUser":[ "slackbot" ],
+    "restrictedToUser": [],
+    "excludedChannel":[ "general" ],
+    "restrictedToChannel": [],
+    "reward": {
+        "giftByDay":3,
+        "giftMax":9,
+        "excludedDays":[6,0],
+        "giftEmoji":":hatching_chick:",
+        "giftEmojiAlias":":thanks:",
+        "rewardEmoji":":hatched_chick:",
+        "gift":{
+            "one":"œuf",
+            "multi":"œufs"
+        },
+        "name":{
+            "one":"piou-piou",
+            "multi":"pious-pious"
+        },
+        "msg":{
+            "givenGift":"Tu as offert %s à %s",
+            "notEnoughGift":"Désolé, tu n'as pas assez d'œufs pour en donner à %s.",
+            "recivedGift":"Tu as reçu %s de la part de %s.",
+            "RewardSumary":"Tu as maintenant %s.",
+            "GetReward":"Tu as suffisament de pious-pious pour t'offrir quelque chose."
+        },
+        "rewardRL": [
+            {"cost":5,"desc":"Un magnifique cadeau surprise","obtention":"Tu peux aller demander à Celine."},
+            {"cost":15,"desc":"Un autre encore plus magnifique cadeau ","obtention":"Tu peux aller demander à Virginie."}
+        ]
+    }
+}
