@@ -11,12 +11,12 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 
-if (!process.env.token) {
+if (!process.env.DairyBotToken) {
     console.log('Error: Specify token in environment');
     process.exit(1);
 }
-if (!process.env.config) {
-    process.env.config="dairybot.json";
+if (!process.env.DairyBotConfig) {
+    process.env.DairyBotConfig="dairybot.json";
 }
 
 var Botkit = require('botkit');
@@ -36,7 +36,7 @@ csvlog = function() { //write all argument separated by ';' for a csv file
 };
 
 // load configuration
-var dairyConf = require('./config/'+process.env.config);
+var dairyConf = require('./config/'+process.env.DairyBotConfig);
 
 var controller = Botkit.slackbot({
     debug: false,
@@ -44,7 +44,7 @@ var controller = Botkit.slackbot({
 });
 
 var bot = controller.spawn({
-    token: process.env.token
+    token: process.env.DairyBotToken
 }).startRTM();
 
 
@@ -248,7 +248,7 @@ controller.hears(['.*'+dairyConf.reward.giftEmoji+'.*','.*'+dairyConf.reward.gif
     // check if user have enough credit to give
     (function(rcount, rlist) {
         controller.storage.users.get(message.user, function(err, user) {
-            if (user && typeof user.gift != undefined && user.gift>=rcount) {
+            if (user && typeof user.gift != undefined && user.gift>=(rcount*rlist.length)) {
                 //bot.reply(message, rewardcount*rewarded.length + ' gift donnée');
                 bot.api.reactions.add({
                     timestamp: message.ts,
@@ -349,7 +349,9 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
 
         bot.reply(message,
             ':'+dairyConf.giftHeardEmoji+': I am a bot named <@' + bot.identity.name +
-             '>. I have been running for ' + uptime + ' on ' + hostname + '.');
+             '>. I have been running for ' + uptime + ' on ' + hostname + ".\n"+
+                "Configuration : "+process.env.DairyBotConfig
+        );
     });
 
 function canBeReward (user) {

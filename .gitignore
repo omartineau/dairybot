@@ -1,8 +1,6 @@
 node_modules/*
 logs/*.csv
 config/*
-db/channels/*
-db/teams/*
-db/users/*
+db/*
 !config/dairybot.json
 .idea/*

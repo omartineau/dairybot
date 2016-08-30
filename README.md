@@ -3,7 +3,7 @@ The bot that makes your team happy !
 
 DairyBot is a reward system for Slack : your team members reward each other and win gifts.
 
-
+**Made with ♥ in Normady, France.**
 
 ##Install
 ###Clone git repo
@@ -15,7 +15,7 @@ git clone https://github.com/omartineau/dairybot
 composer install
 ```
 
-###Configure you bot and get you tocken
+###Configure you bot and get you token
 https://dairybot.slack.com/apps/build/custom-integration
 
 Create a bot named `dairybot` and copy the token
@@ -89,4 +89,3 @@ Or DM your bot in Slack, and say `restart` and confirm `yes`
 
 
 
-**Made with ♥ in Normady, France.**
