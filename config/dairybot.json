@@ -10,6 +10,10 @@
     "restrictedToUser": [],
     "excludedChannel":[ "general" ],
     "restrictedToChannel": [],
+    "utterances" : {
+        "yes": ["yes","yea","yup","yep","ya","sure","ok","y","yeah","yah","oui","ouai"],
+        "no": ["no","nah","nope","n","non"]
+    },
     "reward": {
         "giftByDay":3,
         "giftMax":9,

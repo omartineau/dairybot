@@ -27,6 +27,7 @@ var fs = require('fs');
 // load dairyBot configuration
 var dairyConf = require('./config/'+process.env.DairyBotConfig);
 
+
 // csv log file for reward history
 var today = new Date();
 var csv_log_file = fs.createWriteStream('./logs/dairyRewards-'+today.getFullYear()+'-'+(today.getMonth()+1)+'.log.csv', {flags : 'a'});
@@ -46,6 +47,11 @@ var controller = Botkit.slackbot({
 var bot = controller.spawn({
     token: process.env.DairyBotToken
 }).startRTM();
+
+if (dairyConf.utterances) {
+    bot.utterances.yes = new RegExp("^("+dairyConf.utterances.yes.join("|")+")","i");
+    bot.utterances.no = new RegExp("^("+dairyConf.utterances.no.join("|")+")","i");
+}
 
 /**
  * Sort of Cron for DailyWork
