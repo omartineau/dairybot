@@ -4,7 +4,7 @@
     "cronHourUTC":"8",
     "cronMinuteUTC":"00",
     "giftHeardEmoji":"robot_face",
-    "adminChanel":"admin-dairy",
+    "adminChanel":"dairyadmin",
     "adminUser":[ "olivier" ],
     "excludedUser":[ "slackbot" ],
     "restrictedToUser": [],
@@ -45,7 +45,7 @@
                 "color":"#ff3300",
                 "thumb_url":"https://static-sb.com/images/backoffice/newaction/coming_soon-en.png"
             },
-            {   "cost":15,
+            {   "cost":6,
                 "desc":"Un autre encore plus magnifique cadeau ",
                 "obtention":"Tu peux aller demander à Virginie.",
                 "color":"#ff3300",

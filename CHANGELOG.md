@@ -3,6 +3,8 @@
 2016-09-04
 **New features**
 - New display of the gift list
+- Get reward
+- Inform admin of reward getting in adminChanel
 - New attributes for the gifts : color and image
 
 **Bug fix**

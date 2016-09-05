@@ -1,14 +1,14 @@
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  _____         _           ____        _
- |  __  \      (_)         |  _ \      | |
- | |  | | __ _ _ _ __ _   _| |_) | ___ | |_
- | |  | |/ _` | | '__| | | |  _ < / _ \| __|
- | |__| | (_| | | |  | |_| | |_) | (_) | |_
- |_____/ \__,_|_|_|   \__, |____/ \___/ \__|
-                      __/ |
-                     |___/
-   The ChatBot that make your team happy !
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+              _____         _           ____        _
+             |  __  \      (_)         |  _ \      | |
+             | |  | | __ _ _ _ __ _   _| |_) | ___ | |_
+             | |  | |/ _` | | '__| | | |  _ < / _ \| __|
+             | |__| | (_| | | |  | |_| | |_) | (_) | |_
+             |_____/ \__,_|_|_|   \__, |____/ \___/ \__|
+                                  __/ |
+                                 |___/
+               The ChatBot that makes your team happy !
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 
 if (!process.env.DairyBotToken) {
@@ -24,7 +24,8 @@ var os = require('os');
 var util = require('util');
 var fs = require('fs');
 
-
+// load dairyBot configuration
+var dairyConf = require('./config/'+process.env.DairyBotConfig);
 
 // csv log file for reward history
 var today = new Date();
@@ -36,8 +37,6 @@ csvlog = function() { //write all argument separated by ';' for a csv file
     csv_log_file.write(now.toISOString() + ';' + args.join(';') + '\n');
 };
 
-// load configuration
-var dairyConf = require('./config/'+process.env.DairyBotConfig);
 
 var controller = Botkit.slackbot({
     debug: false,
@@ -48,10 +47,10 @@ var bot = controller.spawn({
     token: process.env.DairyBotToken
 }).startRTM();
 
-controller.storage.users.get('U23PA3H5H', function (err, user) {
-    canBeReward(user);
-});
-// Sort of Cron for DailyWork
+/**
+ * Sort of Cron for DailyWork
+ */
+
 var nextCronDate = new Date();
 nextCronDate.setHours(dairyConf.cronHourUTC, dairyConf.cronMinuteUTC, 0);
 setInterval(function(){
@@ -167,6 +166,112 @@ function dairyEveryDay() {
     });
 };
 
+/**
+ *  Monitor giveaways in each chanel the bot has been invited
+ */
+controller.hears(['.*'+dairyConf.reward.giftEmoji+'.*','.*'+dairyConf.reward.giftEmojiAlias+'.*'], 'ambient', function(bot, message) {
+    console.log(JSON.stringify(message, null, 4));
+
+    // check who is rewarded
+    var reg = new RegExp('<@([A-Z0-9]+)>','g');
+    var rewarded = [];
+    while ((result = reg.exec(message.text)) !== null) {
+        if (message.user != result[1]) {
+            rewarded.push(result[1]);
+        }
+    };
+    if (rewarded.length == 0) {
+        bot.api.reactions.add({
+            timestamp: message.ts,
+            channel: message.channel,
+            name: 'no_entry_sign',
+        }, function(err, res) {
+            if (err) {
+                bot.botkit.log('Failed to add emoji reaction :(', err);
+            }
+        });
+        return;
+    }
+
+    // check how many reward
+    var reg2 = new RegExp(dairyConf.reward.giftEmoji,'g');
+    var rewardcount = (message.text.match(reg2) || []).length;
+    // have we an alias with :thanks"
+    if (dairyConf.reward.giftEmoji!=dairyConf.reward.giftEmojiAlias) {
+        var reg3 = new RegExp(dairyConf.reward.giftEmojiAlias,'g');
+        rewardcount = rewardcount + (message.text.match(reg3) || []).length;
+    }
+
+    // check if user have enough credit to give
+    (function(rcount, rlist) {
+        controller.storage.users.get(message.user, function(err, user) {
+            if (user && typeof user.gift != undefined && user.gift>=(rcount*rlist.length)) {
+                //bot.reply(message, rewardcount*rewarded.length + ' gift donnée');
+                bot.api.reactions.add({
+                    timestamp: message.ts,
+                    channel: message.channel,
+                    name: dairyConf.giftHeardEmoji,
+                }, function(err, res) {
+                    if (err) {
+                        bot.botkit.log('Failed to add emoji reaction :(', err);
+                    }
+                });
+                // remove reward
+                user.gift = user.gift - (rcount*rlist.length);
+                var namelist = "";
+                var giverID=user.id;
+                var giverName=user.name;
+                controller.storage.users.save(user, function(err,user) {
+                    // give reward and warn rewarded
+                    for (var who in rlist) {
+                        namelist = namelist + '<@' + rlist[who] + '>' + ' ';
+                        console.log("namelist : "+namelist);
+                        controller.storage.users.get(rlist[who], function (err, rewarded) {
+                            // only to active user
+                            bot.api.chat.postMessage({
+                                'channel': rlist[who],
+                                'text':'<@' + giverID + '> t\'a donné '+ rcount + ' ' + dairyConf.reward.rewardEmoji+'.',
+                                'as_user':true
+                            });
+                            //bot.reply(message, "Rewarded " + rcount + ' ' + dairyConf.reward.rewardEmoji + ' à <@' + rlist[who] + '> par <' + user.id + '>');
+                            rewarded.reward = rewarded.reward + rcount;
+                            controller.storage.users.save(rewarded);
+                            canBeReward(rewarded);
+                            csvlog(giverName, rcount, rewarded.name, channelName[message.channel]);
+                        });
+                    }
+                    // confirm giver
+                    bot.api.chat.postMessage({
+                        'channel': giverID ,
+                        'text':'Tu as donné '+ (rcount*rlist.length) + ' ' + dairyConf.reward.rewardEmoji + ' à ' + namelist+'.',
+                        'as_user':true
+                    });
+                    //bot.reply(message, "Giver "+rcount*rlist.length + ' ' + dairyConf.reward.rewardEmoji + ' à ' + namelist + 'par <@'+user.id+'>');
+                });
+            } else {
+                // Fail to reward
+                bot.api.chat.postMessage({
+                    'channel':user.id,
+                    'text':rewardcount*rewarded.length + ' ' + dairyConf.reward.giftEmoji + ' a donner, mais pas assez en stock',
+                    'as_user':true
+                });
+                bot.api.reactions.add({
+                    timestamp: message.ts,
+                    channel: message.channel,
+                    name: 'no_entry_sign',
+                }, function(err, res) {
+                    if (err) {
+                        bot.botkit.log('Failed to add emoji reaction :(', err);
+                    }
+                });
+            }
+        });
+    })(rewardcount, rewarded);
+});
+
+/**
+ *  Direct message commands
+ */
 controller.hears(['hello', 'hi', 'bonjour'], 'direct_message', function(bot, message) {
 
     bot.api.reactions.add({
@@ -232,21 +337,14 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
                             pattern: numslist,
                             callback: function (response, convo) {
                                 var giftChoosen = response.text-1;
-                                convo.say({
-                                    'text': 'C\'est fait !' + ' ' + dairyConf.reward.rewardRL[giftList[giftChoosen].realid].obtention,
-                                    'as_user': true,
-                                    "attachments": [giftList[giftChoosen]]
-                                });
-                                // remove point from customer
-                                // giftList[giftChoosen].realid
-
+                                giveReward (convo, response.user, giftList[giftChoosen]);
                                 convo.next();
                             }
                         },
                         {
                             pattern: bot.utterances.no,
                             callback: function (response, convo) {
-                                convo.say('Tant pis...');
+                                convo.say('To bad!');
                                 convo.next();
                             }
                         },
@@ -271,19 +369,14 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
                         {
                             pattern: bot.utterances.yes,
                             callback: function(response, convo) {
-                                var giftChoosen = response.text-1;
-                                convo.say({
-                                    'text': 'C\'est fait !' + ' ' + dairyConf.reward.rewardRL[giftList[0].realid].obtention,
-                                    'as_user': true,
-                                    "attachments": giftList
-                                });
+                                giveReward (convo, response.user, giftList[0]);
                                 convo.next();
                             }
                         },
                         {
                             pattern: bot.utterances.no,
                             callback: function(response, convo) {
-                                convo.say('Tant pis...');
+                                convo.say('Too bad!');
                                 convo.next();
                             }
                         },
@@ -307,107 +400,6 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
         }
     });
 });
-
-controller.hears(['.*'+dairyConf.reward.giftEmoji+'.*','.*'+dairyConf.reward.giftEmojiAlias+'.*'], 'ambient', function(bot, message) {
-    console.log(JSON.stringify(message, null, 4));
-
-    // check who is rewarded
-    var reg = new RegExp('<@([A-Z0-9]+)>','g');
-    var rewarded = [];
-    while ((result = reg.exec(message.text)) !== null) {
-        if (message.user != result[1]) {
-            rewarded.push(result[1]);
-        }
-    };
-    if (rewarded.length == 0) {
-        bot.api.reactions.add({
-            timestamp: message.ts,
-            channel: message.channel,
-            name: 'no_entry_sign',
-        }, function(err, res) {
-            if (err) {
-                bot.botkit.log('Failed to add emoji reaction :(', err);
-            }
-        });
-        return;
-    }
-
-    // check how many reward
-    var reg2 = new RegExp(dairyConf.reward.giftEmoji,'g');
-    var rewardcount = (message.text.match(reg2) || []).length;
-    // have we an alias with :thanks"
-    if (dairyConf.reward.giftEmoji!=dairyConf.reward.giftEmojiAlias) {
-        var reg3 = new RegExp(dairyConf.reward.giftEmojiAlias,'g');
-        rewardcount = rewardcount + (message.text.match(reg3) || []).length;
-    }
-
-    // check if user have enough credit to give
-    (function(rcount, rlist) {
-        controller.storage.users.get(message.user, function(err, user) {
-            if (user && typeof user.gift != undefined && user.gift>=(rcount*rlist.length)) {
-                //bot.reply(message, rewardcount*rewarded.length + ' gift donnée');
-                bot.api.reactions.add({
-                    timestamp: message.ts,
-                    channel: message.channel,
-                    name: dairyConf.giftHeardEmoji,
-                    }, function(err, res) {
-                    if (err) {
-                        bot.botkit.log('Failed to add emoji reaction :(', err);
-                    }
-                });
-                // remove reward
-                user.gift = user.gift - (rcount*rlist.length);
-                var namelist = "";
-                var giverID=user.id;
-                var giverName=user.name;
-                controller.storage.users.save(user, function(err,user) {
-                    // give reward and warn rewarded
-                    for (var who in rlist) {
-                        namelist = namelist + '<@' + rlist[who] + '>' + ' ';
-                        console.log("namelist : "+namelist);
-                        controller.storage.users.get(rlist[who], function (err, rewarded) {
-                            // only to active user
-                            bot.api.chat.postMessage({
-                                'channel': rlist[who],
-                                'text':'<@' + giverID + '> t\'a donné '+ rcount + ' ' + dairyConf.reward.rewardEmoji+'.',
-                                'as_user':true
-                            });
-                            //bot.reply(message, "Rewarded " + rcount + ' ' + dairyConf.reward.rewardEmoji + ' à <@' + rlist[who] + '> par <' + user.id + '>');
-                            rewarded.reward = rewarded.reward + rcount;
-                            controller.storage.users.save(rewarded);
-                            canBeReward(rewarded);
-                            csvlog(giverName, rcount, rewarded.name, channelName[message.channel]);
-                        });
-                    }
-                    // confirm giver
-                    bot.api.chat.postMessage({
-                        'channel': giverID ,
-                        'text':'Tu as donné '+ (rcount*rlist.length) + ' ' + dairyConf.reward.rewardEmoji + ' à ' + namelist+'.',
-                        'as_user':true
-                    });
-                    //bot.reply(message, "Giver "+rcount*rlist.length + ' ' + dairyConf.reward.rewardEmoji + ' à ' + namelist + 'par <@'+user.id+'>');
-                });
-            } else {
-                // Fail to reward
-                bot.api.chat.postMessage({
-                    'channel':user.id,
-                    'text':rewardcount*rewarded.length + ' ' + dairyConf.reward.giftEmoji + ' a donner, mais pas assez en stock',
-                    'as_user':true
-                });
-                bot.api.reactions.add({
-                    timestamp: message.ts,
-                    channel: message.channel,
-                    name: 'no_entry_sign',
-                    }, function(err, res) {
-                    if (err) {
-                        bot.botkit.log('Failed to add emoji reaction :(', err);
-                    }
-                });
-            }
-        });
-    })(rewardcount, rewarded);
-});
-
 
 controller.hears(['restart'], 'direct_message', function(bot, message) {
 
@@ -436,9 +428,8 @@ controller.hears(['restart'], 'direct_message', function(bot, message) {
     });
 });
 
-
 controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'],
-    'direct_message,direct_mention,mention', function(bot, message) {
+    'direct_message,', function(bot, message) {
 
         var hostname = os.hostname();
         var uptime = formatUptime(process.uptime());
@@ -450,6 +441,9 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
         );
     });
 
+/**
+ *  Functions
+ */
 function canBeReward (user) {
     msg = {
         'channel':user.id,
@@ -460,6 +454,35 @@ function canBeReward (user) {
     if (msg.attachments.length>0) {
         bot.api.chat.postMessage(msg);
     }
+}
+
+function giveReward (convo, userId, gift) {
+    // remove point from customer
+    controller.storage.users.get(userId, function (err, user) {
+        // log reward
+        csvlog(user.name, dairyConf.reward.rewardRL[gift.realid].cost, dairyConf.botName , "useReward");
+        // remove cost
+        user.reward = user.reward - dairyConf.reward.rewardRL[gift.realid].cost;
+        console.log("reward : "+user.reward+"\n");
+        console.log("cost : "+dairyConf.reward.rewardRL[gift.realid].cost+"\n");
+        controller.storage.users.save(user);
+        // Confirm user
+        convo.say({
+            'text': 'C\'est fait !' + ' ' + dairyConf.reward.rewardRL[gift.realid].obtention,
+            'as_user': true,
+            "attachments": [gift]
+        });
+        // Post confirmation in admin channel
+        bot.api.chat.postMessage({
+            'channel': dairyConf.adminChanel,
+            'text':user.name + " à demandé un cadeau : ",
+            "attachments": [gift],
+            'as_user':true
+        },function(err, user) {
+            console.log("Error : "+JSON.stringify(err, null, 4));
+            console.log(JSON.stringify(user, null, 4));
+        });
+    });
 }
 
 function rewardList (user) {
