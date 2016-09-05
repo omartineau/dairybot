@@ -9,7 +9,8 @@
     "chatbots"
   ],
   "dependencies": {
-    "botkit": "*"
+    "botkit": "*",
+    "express": "*"
   },
   "private": true,
   "license": "UNLICENSED",

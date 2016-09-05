@@ -1,29 +1,15 @@
 #Todo
-
-- Enregistrer dans quel channel il a été le PP a été donné.
 - Interface web pour voir le TOP de la semaine
 - Récupérer son cadeau
-- prendre en compte quand un message est modifié, et pas seulement créé.
-
-##i18l
-###Translation
-Translation management
-https://webtranslateit.com/en/plans
-http://locize.com/
-
-####Librairy
-i18n
-http://i18next.com/
-
-##Modules
-###Reward with reaction
-Reward action just by giving a reaction emoji on a message.
-
-###Backup
-Send a backup of configuration files and database to a Slack room.
-
+- Localisation
 
 ##Ideas
+- Reward when a message is edited (not easy, how to know if a message has been modified, need to store it...)
+- Reward action just by giving a reaction emoji on a message.
+- Backup in an admin rood
+- Use Slack Button (but need and SSL endpoint on the node side...)
+
+## Ideas of bot function
 ###Welcome bot for new team member
 Helps to give the better first work day
 

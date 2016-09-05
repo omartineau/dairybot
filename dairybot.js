@@ -29,6 +29,7 @@ var fs = require('fs');
 // csv log file for reward history
 var today = new Date();
 var csv_log_file = fs.createWriteStream('./logs/dairyRewards-'+today.getFullYear()+'-'+(today.getMonth()+1)+'.log.csv', {flags : 'a'});
+var csv_log_file_month = today.getMonth()+1;
 csvlog = function() { //write all argument separated by ';' for a csv file
     now = new Date();
     args = Array.prototype.slice.call(arguments);
@@ -47,7 +48,9 @@ var bot = controller.spawn({
     token: process.env.DairyBotToken
 }).startRTM();
 
-
+controller.storage.users.get('U23PA3H5H', function (err, user) {
+    canBeReward(user);
+});
 // Sort of Cron for DailyWork
 var nextCronDate = new Date();
 nextCronDate.setHours(dairyConf.cronHourUTC, dairyConf.cronMinuteUTC, 0);
@@ -62,6 +65,12 @@ setInterval(function(){
 var channelName = [];
 
 function dairyEveryDay() {
+    // Change log file if necessary
+    if (csv_log_file_month != today.getMonth()+1) {
+        csv_log_file = fs.createWriteStream('./logs/dairyRewards-'+today.getFullYear()+'-'+(today.getMonth()+1)+'.log.csv', {flags : 'a'});
+        csv_log_file_month = today.getMonth()+1;
+    }
+
     // Look for user, set in DB and give points to give
     bot.api.users.list({}, function (err, res) {
         for (var member in res.members) {
@@ -92,12 +101,12 @@ function dairyEveryDay() {
                             &&  dairyConf.reward.excludedDays.indexOf(today.getDay())===-1) {
                                 // update daily gift counter
                                 giftGiven = 0;
-                                if (user.gift + dairyConf.reward.dairyConf <= dairyConf.reward.giftMax) {
-                                    user.gift = user.gift + dairyConf.reward.dairyConf;
-                                    giftGiven = dairyConf.reward.dairyConf;
+                                if (user.gift + dairyConf.reward.giftByDay <= dairyConf.reward.giftMax) {
+                                    user.gift = user.gift + dairyConf.reward.giftByDay;
+                                    giftGiven = dairyConf.reward.giftByDay;
                                 } else {
-                                    giftGiven = dairyConf.reward.giftMax - user.gift;
                                     user.gift = dairyConf.reward.giftMax;
+                                    giftGiven = dairyConf.reward.giftMax - user.gift;
                                 }
                                 bot.api.chat.postMessage({
                                     'channel': user.id,
@@ -203,9 +212,96 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
         }
     });
 
+
     controller.storage.users.get(message.user, function(err, user) {
         if (user && user.name) {
-            bot.reply(message, 'Quand <@olivier> aura fini, tu pourras récupérer ton cadeau.');
+            giftList = rewardList(user);
+            if (giftList.length > 1) {
+                bot.startConversation(message, function(err, convo) {
+                    var nums = [];
+                    for (i = 1; i <= giftList.length; i++) {
+                        nums.push(i);
+                    }
+                    numslist = new RegExp("[1-"+ nums.length +"]", 'i');
+                    convo.ask({
+                        'text': "Choississez le numero de votre cadeau ? (" + nums.join(', ') + ")",
+                        'as_user': true,
+                        "attachments": giftList
+                    }, [
+                        {
+                            pattern: numslist,
+                            callback: function (response, convo) {
+                                var giftChoosen = response.text-1;
+                                convo.say({
+                                    'text': 'C\'est fait !' + ' ' + dairyConf.reward.rewardRL[giftList[giftChoosen].realid].obtention,
+                                    'as_user': true,
+                                    "attachments": [giftList[giftChoosen]]
+                                });
+                                // remove point from customer
+                                // giftList[giftChoosen].realid
+
+                                convo.next();
+                            }
+                        },
+                        {
+                            pattern: bot.utterances.no,
+                            callback: function (response, convo) {
+                                convo.say('Tant pis...');
+                                convo.next();
+                            }
+                        },
+                        {
+                            default: true,
+                            callback: function (response, convo) {
+                                // just repeat the question
+                                convo.say('Désolé, je n\'ai pas compris');
+                                convo.repeat();
+                                convo.next();
+                            }
+                        }
+                    ]);
+                });
+            } else if (giftList.length === 1) {
+                bot.startConversation(message, function(err, convo) {
+                    convo.ask({
+                        'text': "Est-ce que tu me confirme que tu veux bénéficier de ton cadeau ?",
+                        'as_user':true,
+                        "attachments": giftList
+                    }, [
+                        {
+                            pattern: bot.utterances.yes,
+                            callback: function(response, convo) {
+                                var giftChoosen = response.text-1;
+                                convo.say({
+                                    'text': 'C\'est fait !' + ' ' + dairyConf.reward.rewardRL[giftList[0].realid].obtention,
+                                    'as_user': true,
+                                    "attachments": giftList
+                                });
+                                convo.next();
+                            }
+                        },
+                        {
+                            pattern: bot.utterances.no,
+                            callback: function(response, convo) {
+                                convo.say('Tant pis...');
+                                convo.next();
+                            }
+                        },
+                        {
+                            default: true,
+                            callback: function (response, convo) {
+                                // just repeat the question
+                                convo.say('Désolé, je n\'ai pas compris');
+                                convo.repeat();
+                                convo.next();
+                            }
+                        }
+                    ]);
+                });
+            } else {
+                bot.reply(message, 'Tu n\'as pas assez de piou-pious disponibles.');
+            }
+
         } else {
             bot.reply(message, 'Je n\'ai rien pour toi.');
         }
@@ -355,24 +451,35 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
     });
 
 function canBeReward (user) {
-    canReward = false;
-    msgTxt = "";
-    for (var rewardKey in dairyConf.reward.rewardRL) {
-        if (user.reward >= dairyConf.reward.rewardRL[rewardKey].cost) {
-            msgTxt = msgTxt +'*'+dairyConf.reward.rewardRL[rewardKey].desc
-                     +'* pour '+dairyConf.reward.rewardRL[rewardKey].cost+" "+dairyConf.reward.rewardEmoji+"\n";
-            canReward = true;
-        }
-    }
-    if (canReward) {
-        bot.api.chat.postMessage({
-            'channel':user.id,
-            'text': "Tu peux obtenir un cadeau :\n"+msgTxt +'Tape "utiliser" pour obtenir ton cadeau.',
-            'as_user':true
-        });
+    msg = {
+        'channel':user.id,
+        'text': "Tu peux obtenir un cadeau : Tape \"utiliser\"",
+        'as_user':true,
+        "attachments": rewardList(user)
+    };
+    if (msg.attachments.length>0) {
+        bot.api.chat.postMessage(msg);
     }
 }
 
+function rewardList (user) {
+    var attachs = [];
+    var line =1;
+    for (var rewardKey in dairyConf.reward.rewardRL) {
+        if (user.reward >= dairyConf.reward.rewardRL[rewardKey].cost) {
+            attachs.push({
+                "fallback": dairyConf.reward.rewardRL[rewardKey].desc,
+                "color": dairyConf.reward.rewardRL[rewardKey].color,
+                "title": "#" + line + " : " + dairyConf.reward.rewardRL[rewardKey].desc,
+                "thumb_url": dairyConf.reward.rewardRL[rewardKey].thumb_url,
+                "text": "Valeur : " + dairyConf.reward.rewardRL[rewardKey].cost + " " + dairyConf.reward.rewardEmoji,
+                "realid" : rewardKey
+            });
+            line++;
+        }
+    }
+    return attachs;
+}
 
 function formatUptime(uptime) {
     var unit = 'second';

@@ -1,4 +1,13 @@
-### v. 0.3
+### v. 0.4
+
+2016-09-04
+**New features**
+- New display of the gift list
+- New attributes for the gifts : color and image
+
+**Bug fix**
+- Rotate log file
+
 2016-08-30
 
 **Bug fix**
@@ -7,7 +16,7 @@
 ### v. 0.2
 2016-08-20
 
-**New feature**
+**New features**
 - Disable the gift distribution on some days (for the week-end for example)
 - Log channel name
 

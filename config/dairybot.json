@@ -33,8 +33,24 @@
             "GetReward":"Tu as suffisament de pious-pious pour t'offrir quelque chose."
         },
         "rewardRL": [
-            {"cost":5,"desc":"Un magnifique cadeau surprise","obtention":"Tu peux aller demander à Celine."},
-            {"cost":15,"desc":"Un autre encore plus magnifique cadeau ","obtention":"Tu peux aller demander à Virginie."}
+            {   "cost":5,
+                "desc":"Un magnifique cadeau surprise",
+                "obtention":"Tu peux aller demander à Celine.",
+                "color":"#00d420",
+                "thumb_url":"https://static-sb.com/images/backoffice/newaction/coming_soon-en.png"
+            },
+            {   "cost":25,
+                "desc":"Un autre encore plus très très beau cadeau ",
+                "obtention":"Tu peux aller demander à Virginie.",
+                "color":"#ff3300",
+                "thumb_url":"https://static-sb.com/images/backoffice/newaction/coming_soon-en.png"
+            },
+            {   "cost":15,
+                "desc":"Un autre encore plus magnifique cadeau ",
+                "obtention":"Tu peux aller demander à Virginie.",
+                "color":"#ff3300",
+                "thumb_url":"https://static-sb.com/images/backoffice/newaction/coming_soon-en.png"
+            }
         ]
     }
 }

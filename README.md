@@ -22,7 +22,7 @@ Create a bot named `dairybot` and copy the token
 
 ##Launch
 ###Test
-token=xoxp-123456-789012-??????-?????? node dairybot.js
+DairyBotToken=xoxp-123456-789012-??????-?????? node dairybot.js
 ###Install as a daemon
 Ìnstall [forever](https://www.npmjs.com/package/forever) to make DairyBot persistent.
 ```
@@ -49,7 +49,7 @@ Change the token and the sourceDir
 export PATH=$PATH:/usr/local/bin
 export NODE_PATH=$NODE_PATH:/usr/local/lib/node_modules
 # change du token below with yours
-export token=xoxb-12345678-azertyuiopQSDFGHJKLM 
+export DairyBotToken=xoxb-12345678-azertyuiopQSDFGHJKLM 
 
 case "$1" in
   start)
@@ -78,7 +78,7 @@ Launch the daemon
 
 Edit the config/dairybot.json` file
 
-Restart the daemon in command line
+Then restart the daemon in command line
 ```
 /etc/init.d/dairybot stop
 /etc/init.d/dairybot start
