@@ -1,4 +1,5 @@
-#DairyBot
+![DAIRYbot](https://omartineau.github.io/dairy-bot.svg)
+
 The bot that makes your team happy !
 
 DairyBot is a recognition system for Slack : your team members reward each other and win gifts.
