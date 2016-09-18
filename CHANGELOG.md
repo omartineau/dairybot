@@ -1,5 +1,16 @@
 ### v. 0.4
 
+2016-09-18
+**New features**
+- Complete documentation
+- Add internationalisation 
+- Add english config file and make it default
+
+2016-09-08
+**New features**
+- Integrate http server to serve static image /img for gift thumb
+- Serve a web page for statistics on / (Work in progress)
+
 2016-09-04
 **New features**
 - New display of the gift list

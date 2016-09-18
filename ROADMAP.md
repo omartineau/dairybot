@@ -1,13 +1,12 @@
-#Todo
-- Interface web pour voir le TOP de la semaine
-- Localisation
+##Todo next
+- Top user on a web interface
 
 ##Ideas
 - Reward action just by giving a reaction emoji on a message.
-- Backup in an admin rood
+- Backup in an admin channel
 - Use Slack Button (but need and SSL endpoint on the node side...)
+- Give special reward on birthday
 - Reward when a message is edited (not easy, how to know if a message has been modified, need to store it...)
-
 
 ## Ideas of new bot function
 ###Welcome bot for new team member
