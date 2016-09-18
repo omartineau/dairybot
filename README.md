@@ -2,13 +2,13 @@
 
 The bot that makes your team happy !
 
-DairyBot is a recognition system for Slack : your team members reward each other and win gifts.
+DairyBot is a recognition system for Slack : your team members reward each others and win gifts.
 
 **Made with ♥ in Normady, France.**
 
 ## How it works
 
-​Every days, each team member recives :hatching_chick: that can be used to reward your colleagues. Send recognition in a channel (public or private)
+​Every days, each team member recives a :hatching_chick: that can be used to reward your colleagues. Send recognition in a channel (public or private)
 
 > ​A big thanks :hatching_chick: to @john that help me to convince a prospect.
 
@@ -62,13 +62,13 @@ Soon... On Paas platforms.
 
 **Invite dairy in each channel** needed to be monitored by your bot. You also need to create a private chanel `dairyadmin` and invite your bot inside with `/invite dairy`.
 
-If you want to make reward easier, [create a alias](https://slack.com/customize/emoji) `:thanks:` for the one you use `:hatching_chick:` (:hatching_chick:)
+If you want to make reward easier, [create a alias](https://slack.com/customize/emoji) `:thanks:` for the one you use `:hatching_chick:` by default (:hatching_chick:)
 
 ## Personalize you Bot
 
 ### Config file
 
-Dupplicate the `config/dairybot.json` file, then lanch you bot with the environnement `DairyBotConfig=new_conf_file.json` .
+Duplicate the `config/dairybot.json` file, then launch your bot with the environnement `DairyBotConfig=new_conf_file.json` .
 
 ### Common section
 
@@ -77,19 +77,19 @@ Dupplicate the `config/dairybot.json` file, then lanch you bot with the environn
 - **cronHourUTC** and **cronMinuteUTC** : time of the reward delivery
 - **giftHeardEmoji**  : emoji added in reaction, when a reward is noticed by the bot ( :robot_face: )
 - **adminChanel** : private channel use to notify admin when a use get his gift (*dairyadmin* by default)
-- **adminUser** : list of admin user (currently unused)
-- **excludedUser** : list of user that will not take part of the system
-- **excludedChannel** : list of channel where the bot can not be invited
-- **restrictedToUser** : just this users will take part (very usefull for test period)
+- **adminUser** : list of admin users (currently unused)
+- **excludedUser** : list of users that will not take part of the system
+- **excludedChannel** : list of channels where the bot can not be invited
+- **restrictedToUser** : only this users will take part (very usefull for test period)
 - **restrictedToChannel** : if you want to limit the channels
-- **utterances** : word use to say yes/no in bot conversation
+- **utterances** : word used to say yes/no in bot conversation
 
 
 ### Reward section
 
 - **recognitionByDay** : how many rewards are received each day (default : 1)
-- **recognitionMax** : how many rewards can be cumulate (default 3)
-- **excludedDays** : rewards are not given on whose days (0 is sunday) (default weekend [6,0])
+- **recognitionMax** : how many rewards can be cumulated (default 3)
+- **excludedDays** : rewards are not given on those days (0 is sunday) (default weekend [6,0])
 - **giftEmoji** : emoji used to give recognition (default 🐣)
 - **giftEmojiAlias** : alias to make easy recognition (default `:thanks:` )
 - **rewardEmoji** : emoji used to represent rewards (default :hatched_chick:)
