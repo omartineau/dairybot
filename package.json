@@ -10,7 +10,9 @@
   ],
   "dependencies": {
     "botkit": "*",
-    "express": "*"
+    "express": "^4.13.3",
+    "body-parser": "^1.13.3",
+    "express-handlebars": "^3.0.0"
   },
   "private": true,
   "license": "UNLICENSED",

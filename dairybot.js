@@ -23,12 +23,68 @@ var Botkit = require('botkit');
 var os = require('os');
 var util = require('util');
 var fs = require('fs');
+var express = require('express');
+var path = require('path');
+var bodyParser = require('body-parser');
+var exphbs  = require('express-handlebars');
 
-// load dairyBot configuration
+/**
+ * load dairyBot configuration
+ **/
 var dairyConf = require('./config/'+process.env.DairyBotConfig);
 
+/**
+ * localisation
+ */
+String.prototype.__ = function (toreplace) {
+    if (typeof dairyConf.str[this] === "string") {
+        if (typeof toreplace === "object") {
+            return dairyConf.str[this].replaceArray(toreplace);
+        } else {
+            return dairyConf.str[this];
+        }
+    } else {
+        if (typeof toreplace === "object") {
+            return this.replaceArray(toreplace);
+        } else {
+            return this;
+        }
+    }
+}
+String.prototype.__n = function (numb, toreplace) {
+    if (typeof toreplace === "undefined" ) {
+        var toreplace = {};
+    }
+    toreplace.numb = numb;
+    if (typeof dairyConf.str[this] === "object") {
+        if (numb > 1) {
+            if (typeof dairyConf.str[this].multi === "string") {
+                return dairyConf.str[this].multi.__(toreplace);
+            } else {
+                return this.__(toreplace); //fallback, generaly wrong
+            }
+        } else {
+            if (typeof dairyConf.str[this].one === "string") {
+                return dairyConf.str[this].one.__(toreplace);
+            } else {
+                return this.__(toreplace);
+            }
+        }
+    } else {
+        return this.__(toreplace);
+    }
+}
+String.prototype.replaceArray = function(findreplace) {
+    var replaceString = this;
+    for(var index in findreplace) {
+        replaceString = replaceString.replace("{"+index+"}", findreplace[index]);
+    }
+    return replaceString;
+};
 
-// csv log file for reward history
+/**
+ * csv log file for reward history
+ */
 var today = new Date();
 var csv_log_file = fs.createWriteStream('./logs/dairyRewards-'+today.getFullYear()+'-'+(today.getMonth()+1)+'.log.csv', {flags : 'a'});
 var csv_log_file_month = today.getMonth()+1;
@@ -38,12 +94,13 @@ csvlog = function() { //write all argument separated by ';' for a csv file
     csv_log_file.write(now.toISOString() + ';' + args.join(';') + '\n');
 };
 
-
+/**
+ * Start BOT
+ */
 var controller = Botkit.slackbot({
     debug: false,
     json_file_store: 'db'
 });
-
 var bot = controller.spawn({
     token: process.env.DairyBotToken
 }).startRTM();
@@ -54,9 +111,42 @@ if (dairyConf.utterances) {
 }
 
 /**
+ * Start http Server
+ */
+var app = express();
+app.engine('handlebars', exphbs({
+    defaultLayout: 'main',
+    partialsDir: ['views/partials/']
+}));
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'handlebars');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('port', process.env.PORT || 3000);
+
+/**
+ *  /     => statics
+ *  /top  => user top
+ */
+app.use('/top', function(req, res) {
+
+
+    params = {  lists: userTop,
+        rewardname : dairyConf.reward.name.multi
+    };
+    res.render('top', params);
+});
+app.use('/', function(req, res) {
+    res.render('index', { title: 'Express' });
+});
+var server = app.listen(app.get('port'), function() {
+    console.log('Dairybot stats availaible on http://' + server.address().port);
+});
+
+/**
  * Sort of Cron for DailyWork
  */
-
 var nextCronDate = new Date();
 nextCronDate.setHours(dairyConf.cronHourUTC, dairyConf.cronMinuteUTC, 0);
 setInterval(function(){
@@ -68,6 +158,7 @@ setInterval(function(){
 },1000*05);
 
 var channelName = [];
+var userTop = [];
 
 function dairyEveryDay() {
     // Change log file if necessary
@@ -79,6 +170,7 @@ function dairyEveryDay() {
     // Look for user, set in DB and give points to give
     bot.api.users.list({}, function (err, res) {
         for (var member in res.members) {
+
             if (!res.members[member].is_restricted && !res.members[member].is_ultra_restricted && !res.members[member].is_ultra_restricted && !res.members[member].is_bot) {
                 // if user exist, add reward else create user
                 (function (m) {
@@ -106,16 +198,17 @@ function dairyEveryDay() {
                             &&  dairyConf.reward.excludedDays.indexOf(today.getDay())===-1) {
                                 // update daily gift counter
                                 giftGiven = 0;
-                                if (user.gift + dairyConf.reward.giftByDay <= dairyConf.reward.giftMax) {
-                                    user.gift = user.gift + dairyConf.reward.giftByDay;
-                                    giftGiven = dairyConf.reward.giftByDay;
+                                if (user.gift + dairyConf.reward.recognitionByDay <= dairyConf.reward.recognitionMax) {
+                                    user.gift = user.gift + dairyConf.reward.recognitionByDay;
+                                    giftGiven = dairyConf.reward.recognitionByDay;
                                 } else {
-                                    user.gift = dairyConf.reward.giftMax;
-                                    giftGiven = dairyConf.reward.giftMax - user.gift;
+                                    user.gift = dairyConf.reward.recognitionMax;
+                                    giftGiven = dairyConf.reward.recognitionMax - user.gift;
                                 }
                                 bot.api.chat.postMessage({
                                     'channel': user.id,
-                                    'text':'Bonjour '+user.name+",\n"+'aujourd\'hui tu as '+user.gift+' '+dairyConf.reward.giftEmoji+' a donner pour remercier tes collègues. Si tu veux savoir où tu en es, dis moi juste "bonjour".',
+                                    'text': "Hello {user},\ntoday you've got {gifts} {giftEmoji} to reward your colleague. If you whant to know how many rewards you've got just tell me `hello`.".
+                                        __({"user":user.name,"gifts":user.gift,"giftEmoji":dairyConf.reward.giftEmoji}),
                                     'as_user':true
                                 },function(err, user) {
                                     console.log("new"+JSON.stringify(err, null, 4));
@@ -170,6 +263,7 @@ function dairyEveryDay() {
             }
         }
     });
+    //updateTop();
 };
 
 /**
@@ -236,10 +330,9 @@ controller.hears(['.*'+dairyConf.reward.giftEmoji+'.*','.*'+dairyConf.reward.gif
                             // only to active user
                             bot.api.chat.postMessage({
                                 'channel': rlist[who],
-                                'text':'<@' + giverID + '> t\'a donné '+ rcount + ' ' + dairyConf.reward.rewardEmoji+'.',
+                                'text': "You received {somerewards} from {giver}.".__({"somerewards":rcount + ' ' + dairyConf.reward.rewardEmoji, "giver": giverID}),
                                 'as_user':true
                             });
-                            //bot.reply(message, "Rewarded " + rcount + ' ' + dairyConf.reward.rewardEmoji + ' à <@' + rlist[who] + '> par <' + user.id + '>');
                             rewarded.reward = rewarded.reward + rcount;
                             controller.storage.users.save(rewarded);
                             canBeReward(rewarded);
@@ -249,7 +342,7 @@ controller.hears(['.*'+dairyConf.reward.giftEmoji+'.*','.*'+dairyConf.reward.gif
                     // confirm giver
                     bot.api.chat.postMessage({
                         'channel': giverID ,
-                        'text':'Tu as donné '+ (rcount*rlist.length) + ' ' + dairyConf.reward.rewardEmoji + ' à ' + namelist+'.',
+                        'text': "You gave {someeggs} to {rewarded}".__({"someeggs":(rcount*rlist.length) + ' ' + dairyConf.reward.rewardEmoji, "rewarded":namelist }),
                         'as_user':true
                     });
                     //bot.reply(message, "Giver "+rcount*rlist.length + ' ' + dairyConf.reward.rewardEmoji + ' à ' + namelist + 'par <@'+user.id+'>');
@@ -258,7 +351,7 @@ controller.hears(['.*'+dairyConf.reward.giftEmoji+'.*','.*'+dairyConf.reward.gif
                 // Fail to reward
                 bot.api.chat.postMessage({
                     'channel':user.id,
-                    'text':rewardcount*rewarded.length + ' ' + dairyConf.reward.giftEmoji + ' a donner, mais pas assez en stock',
+                    'text':  "Sorry, you didn't have enough {egg}, you need {eggs}.".__({"egg":dairyConf.reward.giftEmoji,"eggs":rewardcount*rewarded.length + ' ' + dairyConf.reward.giftEmoji}),
                     'as_user':true
                 });
                 bot.api.reactions.add({
@@ -278,7 +371,7 @@ controller.hears(['.*'+dairyConf.reward.giftEmoji+'.*','.*'+dairyConf.reward.gif
 /**
  *  Direct message commands
  */
-controller.hears(['hello', 'hi', 'bonjour'], 'direct_message', function(bot, message) {
+controller.hears(['hello', 'hi', 'hello'.__(), 'hi'.__()], 'direct_message', function(bot, message) {
 
     bot.api.reactions.add({
         timestamp: message.ts,
@@ -292,16 +385,16 @@ controller.hears(['hello', 'hi', 'bonjour'], 'direct_message', function(bot, mes
 
     controller.storage.users.get(message.user, function(err, user) {
         if (user && user.name) {
-            msgTxt = 'Hello ' + user.name + ' !\n';
+            msgTxt = "Hello {name}!\n".__({'name':user.name });
             if ( user.gift > 0) {
-                msgTxt = msgTxt + 'Tu as  ' + user.gift+' '+dairyConf.reward.giftEmoji+' a donner aujourd\'hui.\n';
+                msgTxt = msgTxt + "You have {rewards} to give today.\n".__({'rewards':user.gift+' '+dairyConf.reward.giftEmoji});
             } else {
-                msgTxt = msgTxt + 'Tu n\'as plus de  ' + dairyConf.reward.giftEmoji+' a donner aujourd\'hui. Rendez-vous demain !\n';
+                msgTxt = msgTxt + "You don't have {rewards} to give today. See you tomorow!\n".__({'rewards':dairyConf.reward.giftEmoji});
             }
             if ( user.reward > 0) {
-                msgTxt = msgTxt +  'Tu as reçu  ' + user.reward+' '+dairyConf.reward.rewardEmoji+'.';
+                msgTxt = msgTxt +  "You have received {rewards}.".__({"rewards":user.reward+' '+dairyConf.reward.rewardEmoji});
             } else {
-                msgTxt = msgTxt +  'Tu n\'as pas encore reçu  de '+dairyConf.reward.rewardEmoji+'.';
+                msgTxt = msgTxt +  "You haven't already received {rewards}.".__({"rewards":dairyConf.reward.rewardEmoji});
             }
             bot.reply(message, msgTxt);
             canBeReward(user);
@@ -311,7 +404,7 @@ controller.hears(['hello', 'hi', 'bonjour'], 'direct_message', function(bot, mes
     });
 });
 
-controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
+controller.hears(['use', 'use'.__()], 'direct_message', function(bot, message) {
 
     bot.api.reactions.add({
         timestamp: message.ts,
@@ -334,8 +427,9 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
                         nums.push(i);
                     }
                     numslist = new RegExp("[1-"+ nums.length +"]", 'i');
+                    // Need to choose wich gift
                     convo.ask({
-                        'text': "Choississez le numero de votre cadeau ? (" + nums.join(', ') + ")",
+                        'text': "Which gift do you want ? ({giftlist})".__({"giftlist":nums.join(', ')}),
                         'as_user': true,
                         "attachments": giftList
                     }, [
@@ -350,7 +444,7 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
                         {
                             pattern: bot.utterances.no,
                             callback: function (response, convo) {
-                                convo.say('To bad!');
+                                convo.say('To bad!'.__());
                                 convo.next();
                             }
                         },
@@ -358,7 +452,7 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
                             default: true,
                             callback: function (response, convo) {
                                 // just repeat the question
-                                convo.say('Désolé, je n\'ai pas compris');
+                                convo.say("Sorry, I did not undersant".__());
                                 convo.repeat();
                                 convo.next();
                             }
@@ -367,8 +461,9 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
                 });
             } else if (giftList.length === 1) {
                 bot.startConversation(message, function(err, convo) {
+                    // Just need to confirm
                     convo.ask({
-                        'text': "Est-ce que tu me confirme que tu veux bénéficier de ton cadeau ?",
+                        'text': "Do you want this gift ?".__(),
                         'as_user':true,
                         "attachments": giftList
                     }, [
@@ -382,7 +477,7 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
                         {
                             pattern: bot.utterances.no,
                             callback: function(response, convo) {
-                                convo.say('Too bad!');
+                                convo.say('Too bad!'.__());
                                 convo.next();
                             }
                         },
@@ -390,7 +485,7 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
                             default: true,
                             callback: function (response, convo) {
                                 // just repeat the question
-                                convo.say('Désolé, je n\'ai pas compris');
+                                convo.say("Sorry, I did not undersant".__());
                                 convo.repeat();
                                 convo.next();
                             }
@@ -398,24 +493,25 @@ controller.hears(['use', 'utiliser'], 'direct_message', function(bot, message) {
                     ]);
                 });
             } else {
-                bot.reply(message, 'Tu n\'as pas assez de piou-pious disponibles.');
+                bot.reply(message, "You've got enought {rewards} to have something".__());
             }
 
         } else {
-            bot.reply(message, 'Je n\'ai rien pour toi.');
+            bot.reply(message, "Nothing for you".__());
         }
     });
+    //updateTop();
 });
 
 controller.hears(['restart'], 'direct_message', function(bot, message) {
 
     bot.startConversation(message, function(err, convo) {
 
-        convo.ask('Are you sure you want me to restart?', [
+        convo.ask('Are you sure you want me to restart?'.__(), [
             {
                 pattern: bot.utterances.yes,
                 callback: function(response, convo) {
-                    convo.say('See you!');
+                    convo.say('See you!'.__());
                     convo.next();
                     setTimeout(function() {
                         process.exit();
@@ -426,7 +522,7 @@ controller.hears(['restart'], 'direct_message', function(bot, message) {
             pattern: bot.utterances.no,
             default: true,
             callback: function(response, convo) {
-                convo.say('*Phew!*');
+                convo.say("*"+'Phew!'.__()+"*");
                 convo.next();
             }
         }
@@ -434,8 +530,7 @@ controller.hears(['restart'], 'direct_message', function(bot, message) {
     });
 });
 
-controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'],
-    'direct_message,', function(bot, message) {
+controller.hears(['uptime'], 'direct_message,', function(bot, message) {
 
         var hostname = os.hostname();
         var uptime = formatUptime(process.uptime());
@@ -453,7 +548,7 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
 function canBeReward (user) {
     msg = {
         'channel':user.id,
-        'text': "Tu peux obtenir un cadeau : Tape \"utiliser\"",
+        'text': "You can have a reward : just tell me `use`".__(),
         'as_user':true,
         "attachments": rewardList(user)
     };
@@ -469,19 +564,17 @@ function giveReward (convo, userId, gift) {
         csvlog(user.name, dairyConf.reward.rewardRL[gift.realid].cost, dairyConf.botName , "useReward");
         // remove cost
         user.reward = user.reward - dairyConf.reward.rewardRL[gift.realid].cost;
-        console.log("reward : "+user.reward+"\n");
-        console.log("cost : "+dairyConf.reward.rewardRL[gift.realid].cost+"\n");
         controller.storage.users.save(user);
         // Confirm user
         convo.say({
-            'text': 'C\'est fait !' + ' ' + dairyConf.reward.rewardRL[gift.realid].obtention,
+            'text': "Done!".__()  + ' ' + dairyConf.reward.rewardRL[gift.realid].getinfo,
             'as_user': true,
             "attachments": [gift]
         });
         // Post confirmation in admin channel
         bot.api.chat.postMessage({
             'channel': dairyConf.adminChanel,
-            'text':user.name + " à demandé un cadeau : ",
+            'text': "<@{user}> ask a gift: ".__({"user":user.id}),
             "attachments": [gift],
             'as_user':true
         },function(err, user) {
@@ -489,6 +582,7 @@ function giveReward (convo, userId, gift) {
             console.log(JSON.stringify(user, null, 4));
         });
     });
+    //updateTop();
 }
 
 function rewardList (user) {
@@ -501,7 +595,7 @@ function rewardList (user) {
                 "color": dairyConf.reward.rewardRL[rewardKey].color,
                 "title": "#" + line + " : " + dairyConf.reward.rewardRL[rewardKey].desc,
                 "thumb_url": dairyConf.reward.rewardRL[rewardKey].thumb_url,
-                "text": "Valeur : " + dairyConf.reward.rewardRL[rewardKey].cost + " " + dairyConf.reward.rewardEmoji,
+                "text": "Value:".__() + dairyConf.reward.rewardRL[rewardKey].cost + " " + dairyConf.reward.rewardEmoji,
                 "realid" : rewardKey
             });
             line++;
@@ -526,4 +620,19 @@ function formatUptime(uptime) {
 
     uptime = uptime + ' ' + unit;
     return uptime;
+}
+
+function updateTop() {
+    controller.storage.users.all( function(err,res){
+        userTop = [];
+        for ( var id in res ) {
+            if ( !res[id].excluded ) {
+                userTop.push({name: res[id].name, reward : res[id].reward});
+            }
+        }
+        userTop.sort(function(a, b){return a-b});
+        for ( var id in top ) {
+            console.log(userTop[id].name + " : " + tuserTopop[id].reward);
+        }
+    });
 }

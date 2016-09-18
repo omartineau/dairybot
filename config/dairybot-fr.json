@@ -1,0 +1,105 @@
+{
+  "botName":"dairy",
+  "botTZ":"Europe/Paris",
+  "cronHourUTC":"8",
+  "cronMinuteUTC":"00",
+  "giftHeardEmoji":"robot_face",
+  "adminChanel":"dairyadmin",
+  "adminUser":[ ],
+  "excludedUser":[ "slackbot" ],
+  "restrictedToUser": [],
+  "excludedChannel":[ "general" ],
+  "restrictedToChannel": [],
+  "utterances" : {
+    "yes": ["yes","yea","yup","yep","ya","sure","ok","y","yeah","yah","oui","ouai","o"],
+    "no": ["no","nah","nope","n","non"]
+  },
+  "reward": {
+    "recognitionByDay":1,
+    "recognitionMax":3,
+    "excludedDays":[],
+    "giftEmoji":":hatching_chick:",
+    "giftEmojiAlias":":thanks:",
+    "rewardEmoji":":hatched_chick:",
+
+
+    "rewardRL": [
+      {   "cost":1,
+        "desc":"Un magnifique cadeau surprise",
+        "getinfo":"Vous pouvez aller demander à Celine.",
+        "color":"#f5c600",
+        "thumb_url":"https://omartineau.github.io/coming_soon-en.png"
+      },
+      {   "cost":2,
+        "desc":"Un autre encore plus très très beau cadeau ",
+        "getinfo":"Vous pouvez aller demander à Virginie.",
+        "color":"#d8460b",
+        "thumb_url":"https://omartineau.github.io/coming_soon-en.png"
+      },
+      {   "cost":3,
+        "desc":"Un autre encore plus magnifique cadeau ",
+        "getinfo":"Vous pouvez aller demander à Virginie.",
+        "color":"#c21703",
+        "thumb_url":"https://omartineau.github.io/coming_soon-en.png"
+      }
+    ]
+  },
+  "str": {
+    "Hello {user},\ntoday you've got {gifts} {giftEmoji} to reward your colleague. If you whant to know how many rewards you've got just tell me `hello`.":
+    "Bonjour {user},\naujourd'hui vous avez {gifts} {giftEmoji} a donner pour remercier vos collègues. Si vous voulez savoir où vous en êtes, dites-moi juste `bonjour`.",
+    "Which gift do you want ? ({giftlist})":
+    "Choississez le numero de votre cadeau ? ({giftlist})",
+    "Sorry, I did not undersant":
+    "Désolé, je n'ai pas compris",
+    "To bad!":
+    "Dommage",
+    "Do you want this gift ?":
+    "Est-ce que vous me confirmez que vous voulez bénéficier de ce cadeau ?",
+    "Nothing for you":
+    "Je n'ai rien pour vous.",
+    "Are you sure you want me to restart?":
+    "Êtes-vous sûr de vouloir redémarrer ?",
+    "See you!":
+    "A tout de suite!",
+    "Phew!":
+    "Ouf!",
+    "You can have a reward : just tell me `use`":
+    "Vous pouvez obtenir un cadeau : dites-moi `utiliser`",
+    "Done!":
+    "C'est fait !",
+    "{user} ask a gift: "  :
+    "{user} à demandé un cadeau : ",
+    "Value:":
+    "Valeur : ",
+    "You gave {someeggs} to {rewarded}":
+    "Vous avez offert {someeggs} à {rewarded}",
+    "Sorry, you didn't have enough {egg}, you need {eggs}.":
+    "Désolé, vous n'avez pas assez {eggs} pour en donner. Vous avez besoin de {eggs}.",
+    "You received {somerewards} from {giver}.":
+    "Vous avez reçu {somerewards} de la part de {giver}.",
+    "Now, you've got {somerewards}.":
+    "Tu as maintenant {somerewards}.",
+    "You've got enought {rewards} to have something":
+    "Tu as suffisament de {rewards} pour t'offrir quelque chose.",
+    "{numb} reward":{
+      "one":"{numb} piou-piou",
+      "multi":"{numb} pious-pious"
+    },
+    "{numb} gift":{
+      "one":"{numb} œuf",
+      "multi":"{numb} œufs"
+    },
+    "hello":"bonjour",
+      "use":"utiliser",
+    "Hello {name}!\n":
+      "Bonjour {name} !\n",
+    "You have {rewards} to give today.\n":
+      "Vous avez {rewards} à donner aujourd'hui.\n",
+    "You don't have {rewards} to give today. See you tomorow!\n":
+      "Vous n'avez plus de  {rewards} a donner aujourd'hui. Rendez-vous demain !\n",
+    "You have received {rewards}.":
+      "Vous avez reçu  {rewards}.",
+    "You haven't already received {rewards}.":
+      "Vous n'avez pas encore reçu  de {rewards}."
+  }
+}

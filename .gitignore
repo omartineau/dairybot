@@ -2,5 +2,6 @@ node_modules/*
 logs/*.csv
 config/*
 db/*
-!config/dairybot.json
+!config/dairybot*.json
 .idea/*
+npm-debug.log

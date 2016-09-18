@@ -1,60 +1,104 @@
 {
-    "botName":"dairy",
-    "botTZ":"Europe/Paris",
-    "cronHourUTC":"8",
-    "cronMinuteUTC":"00",
-    "giftHeardEmoji":"robot_face",
-    "adminChanel":"dairyadmin",
-    "adminUser":[ "olivier" ],
-    "excludedUser":[ "slackbot" ],
-    "restrictedToUser": [],
-    "excludedChannel":[ "general" ],
-    "restrictedToChannel": [],
-    "utterances" : {
-        "yes": ["yes","yea","yup","yep","ya","sure","ok","y","yeah","yah","oui","ouai"],
-        "no": ["no","nah","nope","n","non"]
+  "botName":"dairy",
+  "botTZ":"Europe/Paris",
+  "cronHourUTC":"8",
+  "cronMinuteUTC":"00",
+  "giftHeardEmoji":"robot_face",
+  "adminChanel":"dairyadmin",
+  "adminUser":[  ],
+  "excludedUser":[ "slackbot" ],
+  "restrictedToUser": [],
+  "excludedChannel":[ "general" ],
+  "restrictedToChannel": [],
+  "utterances" : {
+    "yes": ["yes","yea","yup","yep","ya","sure","ok","y","yeah","yah"],
+    "no": ["no","nah","nope"]
+  },
+  "reward": {
+    "recognitionByDay":1,
+    "recognitionMax":3,
+    "excludedDays":[],
+    "giftEmoji":":hatching_chick:",
+    "giftEmojiAlias":":thanks:",
+    "rewardEmoji":":hatched_chick:",
+
+
+    "rewardRL": [
+      {   "cost":1,
+        "desc":"A beautiful gift",
+        "getinfo":"You must go to the managing office to get you gift.",
+        "color":"#f5c600",
+        "thumb_url":"https://omartineau.github.io/coming_soon-en.png"
+      },
+      {   "cost":2,
+        "desc":"A more beautiful giff ",
+        "getinfo":"You must go to the managing office to get you gift.",
+        "color":"#d8460b",
+        "thumb_url":"https://omartineau.github.io/coming_soon-en.png"
+      },
+      {   "cost":3,
+        "desc":"The greatest gift!",
+        "getinfo":"The managing officer will come to you!",
+        "color":"#c21703",
+        "thumb_url":"https://omartineau.github.io/coming_soon-en.png"
+      }
+    ]
+  },
+  "str": {
+    "Hello {user},\ntoday you've got {gifts} {giftEmoji} to reward your colleague. If you whant to know how many rewards you've got just tell me `hello`.":
+      "Hello {user},\ntoday you've got {gifts} {giftEmoji} to reward your colleague. If you whant to know how many rewards you've got just tell me `hello`.",
+    "Which gift do you want ? ({giftlist})":
+     "Which gift do you want ? ({giftlist})",
+    "Sorry, I did not undersant":
+      "Sorry, I did not undersant",
+    "To bad!":
+      "To bad!",
+    "Do you want this gift ?":
+     "Do you want this gift ?",
+    "Nothing for you":
+      "Nothing for you",
+    "Are you sure you want me to restart?":
+      "Are you sure you want me to restart?",
+    "See you!":
+      "See you!",
+    "Phew!":
+      "Phew!",
+    "You can have a reward : just tell me `use`":
+      "You can have a reward : just tell me `use`",
+    "Done!":
+      "Done!",
+    "{user} ask a gift: "  :
+      "{user} ask a gift: ",
+    "Value:":
+      "Value: ",
+    "You gave {someeggs} to {rewarded}":
+      "You gave {someeggs} to {rewarded}",
+    "Sorry, you didn't have enough {egg}, you need {eggs}.":
+      "Sorry, you didn't have enough {egg}, you need {eggs}.",
+    "You received {somerewards} from {giver}.":
+      "You received {somerewards} from {giver}.",
+    "Now, you've got {somerewards}.":
+      "Now, you've got {somerewards}.",
+    "You've got enought {rewards} to have something":
+      "You've got enought {rewards} to have something",
+    "{numb} reward":{
+      "one":"{numb} reward",
+      "multi":"{numb} rewards"
     },
-    "reward": {
-        "giftByDay":3,
-        "giftMax":9,
-        "excludedDays":[6,0],
-        "giftEmoji":":hatching_chick:",
-        "giftEmojiAlias":":thanks:",
-        "rewardEmoji":":hatched_chick:",
-        "gift":{
-            "one":"œuf",
-            "multi":"œufs"
-        },
-        "name":{
-            "one":"piou-piou",
-            "multi":"pious-pious"
-        },
-        "msg":{
-            "givenGift":"Tu as offert %s à %s",
-            "notEnoughGift":"Désolé, tu n'as pas assez d'œufs pour en donner à %s.",
-            "recivedGift":"Tu as reçu %s de la part de %s.",
-            "RewardSumary":"Tu as maintenant %s.",
-            "GetReward":"Tu as suffisament de pious-pious pour t'offrir quelque chose."
-        },
-        "rewardRL": [
-            {   "cost":5,
-                "desc":"Un magnifique cadeau surprise",
-                "obtention":"Tu peux aller demander à Celine.",
-                "color":"#00d420",
-                "thumb_url":"https://static-sb.com/images/backoffice/newaction/coming_soon-en.png"
-            },
-            {   "cost":25,
-                "desc":"Un autre encore plus très très beau cadeau ",
-                "obtention":"Tu peux aller demander à Virginie.",
-                "color":"#ff3300",
-                "thumb_url":"https://static-sb.com/images/backoffice/newaction/coming_soon-en.png"
-            },
-            {   "cost":6,
-                "desc":"Un autre encore plus magnifique cadeau ",
-                "obtention":"Tu peux aller demander à Virginie.",
-                "color":"#ff3300",
-                "thumb_url":"https://static-sb.com/images/backoffice/newaction/coming_soon-en.png"
-            }
-        ]
-    }
+    "{numb} gift":{
+      "one":"{numb} gift",
+      "multi":"{numb} gifts"
+    },
+    "hello":"hello",
+    "use":"use",
+    "Hello {name}!\n":
+      "Hello {name}!\n",
+    "You have {rewards} to give today.\n":
+      "You have {rewards} to give today.\n",
+    "You don't have {rewards} to give today. See you tomorow!\n":
+      "You don't have {rewards} to give today. See you tomorow!\n",
+    "You have received {rewards}":
+      "You have received {rewards}"
+
+  }
 }
