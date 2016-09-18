@@ -180,11 +180,11 @@ The bot can not see if you try to give reward through a direct message, Slack di
 
 
 
-## How to contribute
+## How to contributes
 
 You can help correcting typos, or complete the documentation, or even create new language (json file in /config).
 
-I also want to create guides for easy installation on Paas (Heroku, Google App Engine, IBM BlueMix, Azure, AWS, Clever Cloud, DigitalOcean, Gandi...)
+I also want to create guides for easy installation on Paas ([Heroku](https://blog.heroku.com/how-to-deploy-your-slack-bots-to-heroku), [Google cloud platform](https://cloudplatform.googleblog.com/2016/03/three-ways-to-build-Slack-integrations-on-Google-Cloud-Platform.html), IBM [BlueMix](https://developer.ibm.com/bluemix/2016/06/06/slack-bots-built-using-node-red/), [Azure](https://azure.microsoft.com/en-us/blog/using-the-azure-webjobs-sdk-to-create-custom-slack-extensions/), [AWS](https://aws.amazon.com/fr/lambda/), [Clever Cloud](https://www.clever-cloud.com/doc/nodejs/nodejs/), DigitalOcean, Gandi...)
 
 You can help to impove the code, of course. I'm new to NodeJS, it's realy a side project for me and I didn't plan to be a Node expert ;-). Pull request are welcome !
 
