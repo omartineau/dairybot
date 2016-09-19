@@ -44,12 +44,12 @@ Be creative !
 ```
 git clone https://github.com/omartineau/dairybot
 ```
-###Composer
+###Install modules
 
-Install all the libraries needed by node.
+Install all the libraries needed by node and Dairybot.
 
 ```
-composer install
+npm install
 ```
 
 ### An easier way to install
