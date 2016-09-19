@@ -1,6 +1,6 @@
 [
   {
-    "bucket_host": "bucket-f59641e7-9ab0-4b66-ba3d-0a11325cb349-fsbucket.services.clever-cloud.com",
+    "bucket_host" : "bucket-YOUR-ID.services.clever-cloud.com",
     "folder" : "/persist"
   }
 ]
