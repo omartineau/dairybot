@@ -54,7 +54,9 @@ npm install
 
 ### An easier way to install
 
-Soon... On Paas platforms.
+- [Deployment on Clever Cloud](docs/hosting/clevercloud.md)
+
+Soon... Other Paas platforms.
 
 ###Configure you bot and get you token
 
