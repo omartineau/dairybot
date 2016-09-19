@@ -99,7 +99,7 @@ String.prototype.replaceArray = function(findreplace) {
  * csv log file for reward history
  */
 var today = new Date();
-var csv_log_file = fs.createWriteStream('./logs/dairyRewards-'+today.getFullYear()+'-'+(today.getMonth()+1)+'.log.csv', {flags : 'a'});
+var csv_log_file = fs.createWriteStream('./persist/logs/dairyRewards-'+today.getFullYear()+'-'+(today.getMonth()+1)+'.log.csv', {flags : 'a'});
 var csv_log_file_month = today.getMonth()+1;
 csvlog = function() { //write all argument separated by ';' for a csv file
     now = new Date();
@@ -112,7 +112,7 @@ csvlog = function() { //write all argument separated by ';' for a csv file
  */
 var controller = Botkit.slackbot({
     debug: false,
-    json_file_store: 'db'
+    json_file_store: 'persist/db'
 });
 var bot = controller.spawn({
     token: process.env.DairyBotToken
@@ -176,7 +176,7 @@ var userTop = [];
 function dairyEveryDay() {
     // Change log file if necessary
     if (csv_log_file_month != today.getMonth()+1) {
-        csv_log_file = fs.createWriteStream('./logs/dairyRewards-'+today.getFullYear()+'-'+(today.getMonth()+1)+'.log.csv', {flags : 'a'});
+        csv_log_file = fs.createWriteStream('./persist/logs/dairyRewards-'+today.getFullYear()+'-'+(today.getMonth()+1)+'.log.csv', {flags : 'a'});
         csv_log_file_month = today.getMonth()+1;
     }
 
