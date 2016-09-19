@@ -1,3 +1,11 @@
+### v. 0.4.1
+
+2016-09-19
+**Changes**
+- Move /db and /logs in a /persist folder
+- Remove .gitkeep in /db and /logs
+
+
 ### v. 0.4
 
 2016-09-18

@@ -1,7 +1,5 @@
 node_modules/*
-logs/*.csv
-config/*
-db/*
+persist/*
 !config/dairybot*.json
 .idea/*
 npm-debug.log

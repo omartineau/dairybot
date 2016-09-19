@@ -29,6 +29,19 @@ var bodyParser = require('body-parser');
 var exphbs  = require('express-handlebars');
 
 /**
+ * check /persist/db and /persist/logs
+ */
+if (!fs.existsSync("./persist")){
+    fs.mkdirSync("./persist");
+}
+if (!fs.existsSync("./persist/db")){
+    fs.mkdirSync("./persist/db");
+}
+if (!fs.existsSync("./persist/logs")){
+    fs.mkdirSync("./persist/logs");
+}
+
+/**
  * load dairyBot configuration
  **/
 var dairyConf = require('./config/'+process.env.DairyBotConfig);

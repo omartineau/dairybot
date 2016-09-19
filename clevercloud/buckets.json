@@ -1,0 +1,6 @@
+[
+  {
+    "bucket_host" : "bucket-YOUR-ID.services.clever-cloud.com",
+    "folder" : "/persist"
+  }
+]
