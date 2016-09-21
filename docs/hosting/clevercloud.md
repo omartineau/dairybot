@@ -17,7 +17,7 @@ Follow this steps :
 5. **Paste** this line in the `clevercloud/buckets.json` file of your Dairybot fork (commit and push...)
 
 6. **Add an application** in your Clever Cloud console
-   Via Github - it's a NodeJS App - don't creation an other FS-bucket
+   Via Github - it's a NodeJS App - don't create an other FS-bucket
 
 7. **Add an environement variable** **DairyBotToken** for your Slackbot token key
 
@@ -26,7 +26,7 @@ Follow this steps :
 9. You probably **need to restart** the deployment (in *Overview* )
 
 **That's all !**
-Your bot must works, and gaves you a reward (via direct message).
+Your bot should work, and give you a reward (via direct message).
 
-You can also check *Logs* in Clever Cloud console if you have `info: ** API CALL: https://slack.com/api/users.list`
+You can also check *Logs* in Clever Cloud console to see if you have `info: ** API CALL: https://slack.com/api/users.list`
 
