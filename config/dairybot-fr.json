@@ -74,7 +74,7 @@
     "You gave {someeggs} to {rewarded}":
     "Vous avez offert {someeggs} à {rewarded}",
     "Sorry, you didn't have enough {egg}, you need {eggs}.":
-    "Désolé, vous n'avez pas assez {eggs} pour en donner. Vous avez besoin de {eggs}.",
+    "Désolé, vous n'avez pas assez de {egg} pour en donner. Vous avez besoin de {eggs}.",
     "You received {somerewards} from {giver}.":
     "Vous avez reçu {somerewards} de la part de {giver}.",
     "Now, you've got {somerewards}.":
