@@ -343,7 +343,7 @@ controller.hears(['.*'+dairyConf.reward.giftEmoji+'.*','.*'+dairyConf.reward.gif
                             // only to active user
                             bot.api.chat.postMessage({
                                 'channel': rlist[who],
-                                'text': "You received {somerewards} from {giver}.".__({"somerewards":rcount + ' ' + dairyConf.reward.rewardEmoji, "giver": giverID}),
+                                'text': "You received {somerewards} from {giver}.".__({"somerewards":rcount + ' ' + dairyConf.reward.rewardEmoji, "giver": giverName}),
                                 'as_user':true
                             });
                             rewarded.reward = rewarded.reward + rcount;
